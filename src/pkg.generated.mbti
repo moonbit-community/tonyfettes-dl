@@ -2,6 +2,7 @@
 package "tonyfettes/dl"
 
 import {
+  "moonbitlang/core/debug",
   "tonyfettes/c/pointer",
 }
 
@@ -11,8 +12,7 @@ pub const RTLD_LAZY : Int = 0x1
 pub const RTLD_NOW : Int = 0x2
 
 // Errors
-type DynamicLibraryError
-pub impl Show for DynamicLibraryError
+type DynamicLibraryError derive(@debug.Debug)
 
 // Types and methods
 type DynamicLibrary
