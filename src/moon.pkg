@@ -1,0 +1,8 @@
+import {
+  "moonbitlang/core/encoding/utf8" @encoding/utf8,
+  "tonyfettes/c",
+}
+
+options(
+  "native-stub": [ "dl.c" ],
+)
