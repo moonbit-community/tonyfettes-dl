@@ -4,7 +4,7 @@ struct DynamicLibrary(@c.Pointer[Unit])
 ///|
 suberror DynamicLibraryError {
   DynamicLibraryError(String)
-} derive(Show)
+} derive(Debug)
 
 ///|
 #borrow(path)
