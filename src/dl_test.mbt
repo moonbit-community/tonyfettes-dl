@@ -1,6 +1,18 @@
 ///|
+fn open_libm() -> DynamicLibrary raise DynamicLibraryError {
+  match DynamicLibrary::try_open("libm.so.6") {
+    Some(lib) => lib
+    None =>
+      match DynamicLibrary::try_open("libm.dylib") {
+        Some(lib) => lib
+        None => DynamicLibrary::open("libm.so")
+      }
+  }
+}
+
+///|
 test "DynamicLibrary::funcref" {
-  let lib = DynamicLibrary::open("libm.dylib")
+  let lib = open_libm()
   let cos_ptr : @c.Pointer[Unit] = lib.symbol("cos")
   let cos_fn : FuncRef[(Double) -> Double] = cos_ptr.unsafe_into()
   inspect(
@@ -16,4 +28,5 @@ test "DynamicLibrary::funcref" {
       #|1
     ),
   )
+  lib.close()
 }

@@ -25,7 +25,7 @@ moonbit_dlerror() {
 }
 
 MOONBIT_FFI_EXPORT
-void
+int32_t
 moonbit_dlclose(void *handle) {
-  dlclose(handle);
+  return dlclose(handle);
 }

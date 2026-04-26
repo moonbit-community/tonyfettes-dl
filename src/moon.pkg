@@ -3,6 +3,8 @@ import {
   "tonyfettes/c",
 }
 
+supported_targets = "native"
+
 options(
   "native-stub": [ "dl.c" ],
 )
