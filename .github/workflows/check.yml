@@ -11,7 +11,11 @@ jobs:
   check:
     strategy:
       fail-fast: false
-    runs-on: ubuntu-latest
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+    runs-on: ${{ matrix.os }}
     continue-on-error: false
     steps:
       - uses: actions/checkout@v4
@@ -34,7 +38,7 @@ jobs:
 
       - name: moon info
         run: |
-          moon info --target all
+          moon info
           git diff --exit-code
 
       - name: format diff
@@ -44,4 +48,4 @@ jobs:
 
       - name: moon test
         run: |
-          moon test --target all
+          moon test
