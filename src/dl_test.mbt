@@ -1,12 +1,22 @@
 ///|
+#cfg(not(platform="windows"))
 fn open_libm() -> DynamicLibrary raise DynamicLibraryError {
-  match DynamicLibrary::try_open("libm.so.6") {
-    Some(lib) => lib
-    None =>
-      match DynamicLibrary::try_open("libm.dylib") {
-        Some(lib) => lib
-        None => DynamicLibrary::open("libm.so")
-      }
+  if DynamicLibrary::try_open("libm.so.6") is Some(lib) {
+    lib
+  } else if DynamicLibrary::try_open("libm.dylib") is Some(lib) {
+    lib
+  } else {
+    DynamicLibrary::open("libm.so")
+  }
+}
+
+///|
+#cfg(platform="windows")
+fn open_libm() -> DynamicLibrary raise DynamicLibraryError {
+  if DynamicLibrary::try_open("ucrtbase.dll") is Some(lib) {
+    lib
+  } else {
+    DynamicLibrary::open("msvcrt.dll")
   }
 }
 

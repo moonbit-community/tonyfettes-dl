@@ -1,6 +1,6 @@
 # tonyfettes/dl
 
-Dynamic library loading for MoonBit native targets, backed by POSIX `dlopen(3)`.
+Dynamic/shared library loading for MoonBit native targets.
 
 ## Features
 
@@ -28,8 +28,9 @@ Add this package to your `moon.pkg.json`:
 
 ```moonbit
 fn cosine_zero() -> Double raise @dl.DynamicLibraryError {
-  // macOS: "libm.dylib"
   // Linux: "libm.so.6" (or the platform's libm soname)
+  // macOS: "libm.dylib"
+  // Windows: "ucrtbase.dll" or another DLL
   let lib = @dl.DynamicLibrary::open("libm.dylib")
   let cos_fn : FuncRef[(Double) -> Double] = lib.funcref("cos")
   let out = cos_fn(0.0)
@@ -85,7 +86,7 @@ fn cosine_zero_safe() -> Double? {
 
 ## Notes
 
-- This package is for native targets and uses system dynamic loader APIs (`dlfcn.h`).
+- This package is for native targets and uses the platform dynamic loader.
 - Symbol names and library filenames are platform-specific.
 - The function signature used with `FuncRef[T]` must exactly match the native symbol signature.
 - Keep the library open while using pointers/function refs resolved from it.
