@@ -7,6 +7,12 @@ suberror DynamicLibraryError {
 } derive(Debug)
 
 ///|
+#cfg(platform="windows")
+#borrow(path)
+extern "c" fn dlopen(path : String, flags : Int) -> @c.Pointer[Unit] = "moonbit_dlopen"
+
+///|
+#cfg(not(platform="windows"))
 #borrow(path)
 extern "c" fn dlopen(path : Bytes, flags : Int) -> @c.Pointer[Unit] = "moonbit_dlopen"
 
@@ -21,7 +27,24 @@ extern "c" fn dlsym(
 extern "c" fn dlclose(handle : @c.Pointer[Unit]) -> Int = "moonbit_dlclose"
 
 ///|
+#cfg(platform="windows")
+extern "c" fn dlerror() -> String = "moonbit_dlerror"
+
+///|
+#cfg(not(platform="windows"))
 extern "c" fn dlerror() -> Bytes = "moonbit_dlerror"
+
+///|
+#cfg(platform="windows")
+fn dlerror_as_string() -> String {
+  dlerror()
+}
+
+///|
+#cfg(not(platform="windows"))
+fn dlerror_as_string() -> String {
+  @encoding/utf8.decode_lossy(dlerror())
+}
 
 ///|
 pub const RTLD_LAZY = 0x1
@@ -34,16 +57,18 @@ pub const RTLD_NOW = 0x2
 pub fn DynamicLibrary::open(
   path : String,
 ) -> DynamicLibrary raise DynamicLibraryError {
-  let handle = dlopen(@encoding/utf8.encode(path), RTLD_LAZY)
+  let os_path = OsString::from_string(path)
+  let handle = dlopen(os_path.0, RTLD_LAZY)
   if handle.is_null() {
-    raise DynamicLibraryError(@encoding/utf8.decode_lossy(dlerror()))
+    raise DynamicLibraryError(dlerror_as_string())
   }
   DynamicLibrary(handle)
 }
 
 ///|
 pub fn DynamicLibrary::try_open(path : String) -> DynamicLibrary? {
-  let handle = dlopen(@encoding/utf8.encode(path), RTLD_LAZY)
+  let os_path = OsString::from_string(path)
+  let handle = dlopen(os_path.0, RTLD_LAZY)
   if handle.is_null() {
     return None
   }
@@ -57,9 +82,17 @@ pub fn DynamicLibrary::symbol(
 ) -> @c.Pointer[Unit] raise DynamicLibraryError {
   let ptr = dlsym(self.0, @encoding/utf8.encode(symbol))
   if ptr.is_null() {
-    raise DynamicLibraryError(@encoding/utf8.decode_lossy(dlerror()))
+    raise DynamicLibraryError(dlerror_as_string())
   }
   ptr
+}
+
+///|
+pub fn DynamicLibrary::unsafe_symbol(
+  self : DynamicLibrary,
+  symbol : String,
+) -> @c.Pointer[Unit] {
+  dlsym(self.0, @encoding/utf8.encode(symbol))
 }
 
 ///|
@@ -69,6 +102,14 @@ pub fn[T] DynamicLibrary::funcref(
 ) -> FuncRef[T] raise DynamicLibraryError {
   let ptr = self.symbol(symbol)
   ptr.unsafe_into()
+}
+
+///|
+pub fn[T] DynamicLibrary::unsafe_funcref(
+  self : DynamicLibrary,
+  symbol : String,
+) -> FuncRef[T] {
+  self.unsafe_symbol(symbol).unsafe_into()
 }
 
 ///|
@@ -99,6 +140,6 @@ pub fn DynamicLibrary::close(
   self : DynamicLibrary,
 ) -> Unit raise DynamicLibraryError {
   if dlclose(self.0) != 0 {
-    raise DynamicLibraryError(@encoding/utf8.decode_lossy(dlerror()))
+    raise DynamicLibraryError(dlerror_as_string())
   }
 }
