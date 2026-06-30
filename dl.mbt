@@ -80,12 +80,28 @@ pub fn DynamicLibrary::symbol(
 }
 
 ///|
+pub fn DynamicLibrary::unsafe_symbol(
+  self : DynamicLibrary,
+  symbol : String,
+) -> @c.Pointer[Unit] {
+  dlsym(self.0, @encoding/utf8.encode(symbol))
+}
+
+///|
 pub fn[T] DynamicLibrary::funcref(
   self : DynamicLibrary,
   symbol : String,
 ) -> FuncRef[T] raise DynamicLibraryError {
   let ptr = self.symbol(symbol)
   ptr.unsafe_into()
+}
+
+///|
+pub fn[T] DynamicLibrary::unsafe_funcref(
+  self : DynamicLibrary,
+  symbol : String,
+) -> FuncRef[T] {
+  self.unsafe_symbol(symbol).unsafe_into()
 }
 
 ///|

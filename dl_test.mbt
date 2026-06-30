@@ -38,5 +38,12 @@ test "DynamicLibrary::funcref" {
       #|1
     ),
   )
+  let cos_fn : FuncRef[(Double) -> Double] = lib.unsafe_funcref("cos")
+  inspect(
+    cos_fn(0.0),
+    content=(
+      #|1
+    ),
+  )
   lib.close()
 }

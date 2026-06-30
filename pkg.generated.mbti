@@ -24,6 +24,8 @@ pub fn DynamicLibrary::symbol(Self, String) -> @pointer.Pointer[Unit] raise Dyna
 pub fn[T] DynamicLibrary::try_funcref(Self, String) -> FuncRef[T]?
 pub fn DynamicLibrary::try_open(String) -> Self?
 pub fn DynamicLibrary::try_symbol(Self, String) -> @pointer.Pointer[Unit]?
+pub fn[T] DynamicLibrary::unsafe_funcref(Self, String) -> FuncRef[T]
+pub fn DynamicLibrary::unsafe_symbol(Self, String) -> @pointer.Pointer[Unit]
 
 // Type aliases
 
