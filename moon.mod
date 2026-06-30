@@ -17,5 +17,3 @@ keywords = [ ]
 description = ""
 
 preferred_target = "native"
-
-source = "src"
