@@ -7,8 +7,14 @@ suberror DynamicLibraryError {
 } derive(Debug)
 
 ///|
+#cfg(platform="windows")
 #borrow(path)
-extern "c" fn dlopen(path : OsString, flags : Int) -> @c.Pointer[Unit] = "moonbit_dlopen"
+extern "c" fn dlopen(path : String, flags : Int) -> @c.Pointer[Unit] = "moonbit_dlopen"
+
+///|
+#cfg(not(platform="windows"))
+#borrow(path)
+extern "c" fn dlopen(path : Bytes, flags : Int) -> @c.Pointer[Unit] = "moonbit_dlopen"
 
 ///|
 #borrow(symbol)
@@ -51,7 +57,8 @@ pub const RTLD_NOW = 0x2
 pub fn DynamicLibrary::open(
   path : String,
 ) -> DynamicLibrary raise DynamicLibraryError {
-  let handle = dlopen(OsString::from_string(path), RTLD_LAZY)
+  let os_path = OsString::from_string(path)
+  let handle = dlopen(os_path.0, RTLD_LAZY)
   if handle.is_null() {
     raise DynamicLibraryError(dlerror_as_string())
   }
@@ -60,7 +67,8 @@ pub fn DynamicLibrary::open(
 
 ///|
 pub fn DynamicLibrary::try_open(path : String) -> DynamicLibrary? {
-  let handle = dlopen(OsString::from_string(path), RTLD_LAZY)
+  let os_path = OsString::from_string(path)
+  let handle = dlopen(os_path.0, RTLD_LAZY)
   if handle.is_null() {
     return None
   }
