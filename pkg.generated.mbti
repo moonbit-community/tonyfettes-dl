@@ -13,6 +13,7 @@ pub const RTLD_NOW : Int = 0x2
 
 // Errors
 type DynamicLibraryError derive(@debug.Debug)
+pub fn DynamicLibraryError::to_repr(Self) -> @debug.Repr
 
 // Types and methods
 type DynamicLibrary
@@ -30,4 +31,3 @@ pub fn DynamicLibrary::unsafe_symbol(Self, String) -> @pointer.Pointer[Unit]
 // Type aliases
 
 // Traits
-
